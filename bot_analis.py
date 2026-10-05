@@ -14,21 +14,38 @@ sumber = [
     "https://foreignpolicy.com/feed/"
 ]
 
-def rangkum_ai(teks_berita):
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + GEMINI_KEY
-    data = {
-        "contents": [{
-            "parts": [{"text": "Kamu analis geopolitik profesional. Buat laporan analisis sentimen dari berita berikut. Format:\n\n1. **Ringkasan Eksekutif:** Apa inti peristiwa & mengapa penting bagi AS?\n2. **Sentimen Negara:** Skor sentimen (Positif/Netral/Negatif) untuk 1-2 negara terlibat.\n3. **Analisis Dampak:** Potensi dampak ke stabilitas kawasan atau kepentingan ekonomi AS.\n4. **Pandangan Analis:** Simulasikan sudut pandang analis intelijen think-tank.\n\nBerita:\n" + teks_berita}]
-        }]
-    }
-    r = requests.post(url, json=data)
-    hasil = r.json()
-    print("DEBUG:", hasil)
-    if "candidates" in hasil:
-        return hasil["candidates"][0]["content"]["parts"][0]["text"]
-    else:
-        return "Error dari API"
+import time
 
+def rangkum_ai(teks_berita):
+    daftar_model = [
+        "gemini-3.8-flash",
+        "gemini-2.5-flash",
+        "gemini-2.0-flash"
+    ]
+
+    for model in daftar_model:
+        for percobaan in range(3):
+            print(f"Mencoba model {model}, percobaan ke-{percobaan+1}...")
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key=" + GEMINI_KEY
+            data = {
+                "contents": [{
+                    "parts": [{"text": "Kamu analis geopolitik profesional. Buat laporan analisis sentimen dari berita berikut. Format:\n\n1. Ringkasan Eksekutif: Apa inti peristiwa dan mengapa penting bagi AS?\n2. Sentimen Negara: Skor sentimen (Positif/Netral/Negatif) untuk 1-2 negara terlibat.\n3. Analisis Dampak: Potensi dampak ke stabilitas kawasan atau kepentingan AS.\n4. Pandangan Analis: Simulasikan sudut pandang analis intelijen think-tank.\n\nBerita:\n" + teks_berita}]
+                }]
+            }
+            try:
+                r = requests.post(url, json=data, timeout=30)
+                hasil = r.json()
+                print("DEBUG:", hasil)
+                if "candidates" in hasil:
+                    return hasil["candidates"][0]["content"]["parts"][0]["text"]
+                else:
+                    print(f"Model {model} gagal, coba model lain...")
+                    break
+            except Exception as e:
+                print(f"Error: {e}, tunggu 10 detik...")
+                time.sleep(10)
+
+    return "Semua model Gemini sedang error. Coba lagi nanti."
 teks_gabung = ""
 for url_rss in sumber:
     try:
