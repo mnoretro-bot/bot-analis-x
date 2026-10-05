@@ -17,19 +17,40 @@ sumber = [
     "https://foreignpolicy.com/feed/"
 ]
 
-prompt_analis = """Kamu analis geopolitik profesional. Buat laporan analisis sentimen dari berita berikut.
+prompt_analis = """Kamu analis geopolitik profesional.
 
-AWALI dengan "RINGKASAN SINGKAT:" lalu 2-3 baris inti berita.
+AWALI dengan bagian HEADLINE seperti ini:
 
-Lalu lanjutkan dengan format:
+📰 HEADLINE HARI INI
 
-1. Ringkasan Eksekutif: Apa inti peristiwa dan mengapa penting bagi AS?
-2. Sentimen Negara: Skor sentimen (Positif/Netral/Negatif) untuk 1-2 negara terlibat.
-3. Analisis Dampak: Potensi dampak ke stabilitas kawasan atau kepentingan AS.
-4. Pandangan Analis: Simulasikan sudut pandang analis intelijen think-tank.
+1. 🔴 [Judul berita paling penting - 1 baris]
+2. 🟡 [Judul berita penting kedua - 1 baris]
+3. 🟢 [Judul berita penting ketiga - 1 baris]
+
+Keterangan indikator:
+🔴 = sangat penting / urgent
+🟡 = penting
+🟢 = perlu diketahui
+
+Setelah HEADLINE, buat garis pemisah ---
+
+Lalu lanjutkan dengan analisis lengkap:
+
+## 1. Ringkasan Eksekutif
+Apa inti peristiwa dan mengapa penting bagi AS?
+
+## 2. Sentimen Negara
+Skor sentimen (Positif/Netral/Negatif) untuk 1-2 negara terlibat.
+
+## 3. Analisis Dampak
+Potensi dampak ke stabilitas kawasan atau kepentingan AS.
+
+## 4. Pandangan Analis
+Simulasikan sudut pandang analis intelijen think-tank.
 
 Berita:
 """
+
 
 def bersihin_markdown(teks):
     teks = teks.replace("**", "*")
@@ -105,7 +126,7 @@ if len(teks_gabung) < 100:
 hash_baru = hashlib.md5(teks_gabung.encode()).hexdigest()
 
 try:
-    with open("/tmp/berita_hash.txt", "r") as f:
+    with open("./berita_hash.txt", "r") as f:
         hash_lama = f.read().strip()
 except:
     hash_lama = ""
@@ -114,7 +135,7 @@ if hash_baru == hash_lama:
     print("Berita sama dengan sebelumnya, skip.")
     sys.exit()
 
-with open("/tmp/berita_hash.txt", "w") as f:
+with open("./berita_hash.txt", "w") as f:
     f.write(hash_baru)
 
 print("Sedang merangkum...")
