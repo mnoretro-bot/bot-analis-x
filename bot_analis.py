@@ -111,9 +111,27 @@ print("Sedang merangkum...")
 hasil = rangkum_ai(teks_gabung)
 print("HASIL:", hasil)
 
-# ============ KIRIM KE TELEGRAM ============
+# ============ KIRIM KE TELEGRAM (DIPECAH) ============
 pesan = "📰 ANALIS GEOPOLITIK\n\n" + hasil
 url_tg = "https://api.telegram.org/bot" + TOKEN + "/sendMessage"
-requests.post(url_tg, data={"chat_id": CHAT_ID, "text": pesan})
+
+# Pecah pesan jadi potongan max 4000 karakter
+max_panjang = 4000
+potongan = []
+while len(pesan) > max_panjang:
+    # Cari titik potong terakhir sebelum 4000 karakter
+    potong_di = pesan.rfind("\n", 0, max_panjang)
+    if potong_di == -1:
+        potong_di = max_panjang
+    potongan.append(pesan[:potong_di])
+    pesan = pesan[potong_di:].lstrip()
+
+potongan.append(pesan)
+
+# Kirim satu-satu
+for i, bagian in enumerate(potongan):
+    print(f"Mengirim bagian {i+1} dari {len(potongan)}...")
+    r = requests.post(url_tg, data={"chat_id": CHAT_ID, "text": bagian})
+    print(f"Status: {r.status_code}")
 
 print("Selesai! Cek Telegram.")
