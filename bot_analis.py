@@ -8,15 +8,17 @@ CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
 
 sumber = [
-    "https://www.cnbcindonesia.com/rss",
-    "https://www.antaranews.com/rss/terkini.xml"
+    "http://feeds.bbci.co.uk/news/world/rss.xml",
+    "https://www.aljazeera.com/xml/rss/all.xml",
+    "https://www.reuters.com/breakingviews/rss",
+    "https://foreignpolicy.com/feed/"
 ]
 
 def rangkum_ai(teks_berita):
     url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + GEMINI_KEY
     data = {
         "contents": [{
-            "parts": [{"text": "Rangkum berita berikut jadi 3 poin penting dalam bahasa Indonesia:\n\n" + teks_berita}]
+            "parts": [{"text": "Kamu analis geopolitik profesional. Buat laporan analisis sentimen dari berita berikut. Format:\n\n1. **Ringkasan Eksekutif:** Apa inti peristiwa & mengapa penting bagi AS?\n2. **Sentimen Negara:** Skor sentimen (Positif/Netral/Negatif) untuk 1-2 negara terlibat.\n3. **Analisis Dampak:** Potensi dampak ke stabilitas kawasan atau kepentingan ekonomi AS.\n4. **Pandangan Analis:** Simulasikan sudut pandang analis intelijen think-tank.\n\nBerita:\n" + teks_berita}]
         }]
     }
     r = requests.post(url, json=data)
@@ -40,7 +42,7 @@ print("Sedang merangkum...")
 hasil = rangkum_ai(teks_gabung)
 print("HASIL:", hasil)
 
-pesan = "📰 ANALIS BERITA HARI INI\n\n" + hasil
+pesan = "📰 ANALIS GEOPOLITIK\n\n" + hasil
 url_tg = "https://api.telegram.org/bot" + TOKEN + "/sendMessage"
 requests.post(url_tg, data={"chat_id": CHAT_ID, "text": pesan})
 
