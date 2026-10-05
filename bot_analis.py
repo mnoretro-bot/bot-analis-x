@@ -3,6 +3,7 @@ import feedparser
 import time
 import os
 import sys
+import hashlib
 
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -16,7 +17,11 @@ sumber = [
     "https://foreignpolicy.com/feed/"
 ]
 
-prompt_analis = """Kamu analis geopolitik profesional. Buat laporan analisis sentimen dari berita berikut. Format:
+prompt_analis = """Kamu analis geopolitik profesional. Buat laporan analisis sentimen dari berita berikut.
+
+AWALI dengan "RINGKASAN SINGKAT:" lalu 2-3 baris inti berita.
+
+Lalu lanjutkan dengan format:
 
 1. Ringkasan Eksekutif: Apa inti peristiwa dan mengapa penting bagi AS?
 2. Sentimen Negara: Skor sentimen (Positif/Netral/Negatif) untuk 1-2 negara terlibat.
@@ -25,6 +30,13 @@ prompt_analis = """Kamu analis geopolitik profesional. Buat laporan analisis sen
 
 Berita:
 """
+
+def bersihin_markdown(teks):
+    teks = teks.replace("**", "*")
+    teks = teks.replace("##", "")
+    teks = teks.replace("#", "")
+    teks = teks.replace("```", "")
+    return teks
 
 def rangkum_ai(teks_berita):
     prompt_lengkap = prompt_analis + teks_berita
@@ -89,8 +101,25 @@ if len(teks_gabung) < 100:
     print("Berita terlalu sedikit, skip.")
     sys.exit()
 
+# Cek duplikat
+hash_baru = hashlib.md5(teks_gabung.encode()).hexdigest()
+
+try:
+    with open("/tmp/berita_hash.txt", "r") as f:
+        hash_lama = f.read().strip()
+except:
+    hash_lama = ""
+
+if hash_baru == hash_lama:
+    print("Berita sama dengan sebelumnya, skip.")
+    sys.exit()
+
+with open("/tmp/berita_hash.txt", "w") as f:
+    f.write(hash_baru)
+
 print("Sedang merangkum...")
 hasil = rangkum_ai(teks_gabung)
+hasil = bersihin_markdown(hasil)
 print("HASIL:", hasil)
 
 pesan = "📰 *ANALIS GEOPOLITIK*\n\n" + hasil
