@@ -34,10 +34,9 @@ def rangkum_ai(teks_berita):
 
     # --- BAGIAN 1: COBA GEMINI DULU ---
     daftar_model_gemini = [
-        "gemini-3.8-flash",
-        "gemini-2.5-flash",
-        "gemini-2.0-flash"
-    ]
+daftar_model_gemini = [
+    "gemini-3.8-flash"
+]    ]
 
     for model in daftar_model_gemini:
         for percobaan in range(3):
@@ -65,9 +64,10 @@ def rangkum_ai(teks_berita):
     # --- BAGIAN 2: KALAU GEMINI GAGAL, COBA GROQ ---
     print("--- Gemini gagal semua, beralih ke Groq ---")
     daftar_model_groq = [
-        "llama-3.3-70b-versatile",
-        "llama-3.1-8b-instant"
-    ]
+daftar_model_groq = [
+    "openai/gpt-oss-120b",
+    "openai/gpt-oss-20b"
+]    ]
 
     for model in daftar_model_groq:
         for percobaan in range(3):
